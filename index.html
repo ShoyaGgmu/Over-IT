@@ -3,16 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light only" /> <!-- ダークモード無効化 -->
   <title>OVER IT - Home</title>
+
   <script src="https://cdn.tailwindcss.com">
     if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('serviceWorker.js')
-      .then(reg => console.log('Service Worker registered.', reg))
-      .catch(err => console.error('Service Worker registration failed:', err));
-  }
+      navigator.serviceWorker.register('serviceWorker.js')
+        .then(reg => console.log('Service Worker registered.', reg))
+        .catch(err => console.error('Service Worker registration failed:', err));
+    }
   </script>
+
   <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+
   <style>
+    html {
+      color-scheme: light; /* ダークモード無効化（CSS側） */
+    }
     .nav-icon {
       transition: transform 0.3s ease, filter 0.3s ease;
     }
@@ -20,23 +28,19 @@
       transform: scale(1.2);
       filter: brightness(1.2);
     }
-    
   </style>
-
-  <link rel="manifest" href="manifest.json">
-
 </head>
 
 <body class="bg-white text-black font-sans flex flex-col items-center p-4 pb-24 min-h-screen">
 
-  <!-- ✅ アプリアイコン（w-48 h-48に拡大） -->
+  <!-- アプリアイコン -->
   <div class="flex items-center justify-center mt-12 mb-14">
     <img src="images/over-it-icon.png" id="homeLogo" alt="logo" class="w-40 h-40 cursor-pointer" />
   </div>
 
   <h1 class="text-2xl font-bold mb-10">HOME</h1>
 
-  <!-- ✅ 未練ゲージ -->
+  <!-- 未練ゲージ -->
   <div class="w-full max-w-xs text-center">
     <h2 class="text-xl font-bold mb-2">未練ゲージ</h2>
     <div class="relative w-full h-6 bg-gray-200 rounded-full overflow-hidden mb-1">
@@ -46,18 +50,18 @@
     <p class="text-sm mt-1 text-gray-600 progress-comment">今日は +0% 忘れられました</p>
   </div>
 
-  <!-- ✅ タスクエリア -->
+  <!-- タスクエリア -->
   <div class="w-full max-w-xs mt-6">
     <h2 class="text-xl font-bold mb-2">タスク</h2>
     <div id="taskList" class="border border-black rounded p-2 space-y-2 bg-white"></div>
   </div>
 
-  <!-- ✅ タスク追加ボタン -->
+  <!-- タスク追加ボタン -->
   <button id="addTaskBtn" class="mt-6 w-full max-w-xs py-3 rounded-full border-2 border-black text-lg font-bold hover:bg-black hover:text-white transition">
     ＋タスクを追加
   </button>
 
-  <!-- ✅ 完了済みタスク -->
+  <!-- 完了済みタスク -->
   <div class="w-full max-w-xs mt-6">
     <h2 class="text-xl font-bold mb-2 text-gray-400">完了済みタスク</h2>
     <div id="completedTasks" class="border border-black rounded p-2 space-y-2 bg-white"></div>
@@ -66,7 +70,7 @@
     </button>
   </div>
 
-  <!-- ✅ ナビゲーションバー（w-10 h-10に戻した） -->
+  <!-- ナビゲーションバー -->
   <div id="navBar" class="fixed bottom-0 left-0 w-full flex justify-around items-center border-t py-2 z-50 bg-white">
     <a href="index.html"><img src="images/house.png" alt="home" class="w-10 h-10 nav-icon" /></a>
     <a href="diary.html"><img src="images/notebook-pen.png" alt="diary" class="w-10 h-10 nav-icon" /></a>

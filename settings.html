@@ -17,17 +17,16 @@
   </style>
 </head>
 
-<!-- ✅ テーマ適用用クラスだけスタート -->
 <body class="bg-gradient-to-b from-purple-100 via-white to-pink-100 text-black font-sans flex flex-col items-center p-4 min-h-screen pb-24">
 
-  <!-- ✅ ロゴ（id付けた） -->
+  <!-- ロゴ -->
   <div class="flex items-center mb-6">
     <img src="images/over-it-icon.png" id="homeLogo" alt="logo" class="w-40 h-40 mr-2 cursor-pointer" />
   </div>
 
   <h1 class="text-2xl font-bold mb-10">SETTINGS</h1>
 
-  <!-- ✅ テーマ選択ボタン -->
+  <!-- テーマ選択 -->
   <div class="w-full max-w-xs mt-4 text-center">
     <h2 class="text-lg font-bold mb-4">テーマを選ぶ</h2>
 
@@ -35,47 +34,46 @@
       デフォルトテーマ
     </button>
 
-    <button id="theme-pinkpurple" class="bg-pink-400 text-white px-4 py-2 rounded w-full hover:bg-pink-500">
+    <button id="theme-pinkpurple" class="bg-pink-400 text-white px-4 py-2 rounded w-full hover:bg-pink-500 mb-8">
       ピンク＆パープルテーマ
     </button>
   </div>
 
-  <!-- ✅ ナビゲーションバー（id付けた） -->
+  <!-- データリセットボタン -->
+  <div class="w-full max-w-xs text-center">
+    <h2 class="text-lg font-bold mb-4">データリセット</h2>
+    <button id="resetDataBtn" class="bg-red-400 text-white font-bold py-2 px-6 rounded w-full hover:bg-red-500">
+      すべてリセット
+    </button>
+  </div>
+
+  <!-- ナビゲーションバー -->
   <div id="navBar" class="fixed bottom-0 left-0 w-full flex justify-around items-center bg-white border-t py-2 z-50">
     <a href="index.html"><img src="images/house.png" alt="home" class="w-10 h-10 nav-icon" /></a>
     <a href="diary.html"><img src="images/notebook-pen.png" alt="diary" class="w-10 h-10 nav-icon" /></a>
     <a href="settings.html"><img src="images/settings.png" alt="settings" class="w-10 h-10 nav-icon" /></a>
   </div>
 
-  <!-- ✅ スクリプト -->
   <script>
     // ロゴ押したらホームへ
     document.getElementById('homeLogo').addEventListener('click', () => {
       window.location.href = 'index.html';
     });
 
-    // テーマを適用する関数
+    // テーマ適用
     function applyTheme(theme) {
       const body = document.body;
       const navBar = document.getElementById('navBar');
 
       body.classList.remove(
-        'bg-white', 
-        'bg-gradient-to-b', 
-        'from-purple-100', 
-        'via-white', 
-        'to-pink-100', 
-        'from-pink-200', 
-        'to-purple-300'
+        'bg-white', 'bg-gradient-to-b',
+        'from-purple-100', 'via-white', 'to-pink-100',
+        'from-pink-200', 'to-purple-300'
       );
       navBar.classList.remove(
-        'bg-white', 
-        'bg-gradient-to-b', 
-        'from-purple-100', 
-        'via-white', 
-        'to-pink-100', 
-        'from-pink-200', 
-        'to-purple-300'
+        'bg-white', 'bg-gradient-to-b',
+        'from-purple-100', 'via-white', 'to-pink-100',
+        'from-pink-200', 'to-purple-300'
       );
 
       if (theme === 'default') {
@@ -89,7 +87,7 @@
       localStorage.setItem('selectedTheme', theme);
     }
 
-    // ページロード時、保存されたテーマを適用
+    // ページロード時
     document.addEventListener('DOMContentLoaded', () => {
       const savedTheme = localStorage.getItem('selectedTheme') || 'default';
       applyTheme(savedTheme);
@@ -100,6 +98,15 @@
 
       document.getElementById('theme-pinkpurple').addEventListener('click', () => {
         applyTheme('pinkpurple');
+      });
+
+      // リセットボタン押したとき
+      document.getElementById('resetDataBtn').addEventListener('click', () => {
+        if (confirm('本当に全データをリセットしますか？')) {
+          localStorage.clear();
+          alert('データをリセットしました！');
+          window.location.reload();
+        }
       });
     });
   </script>
