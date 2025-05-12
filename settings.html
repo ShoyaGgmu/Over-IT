@@ -17,7 +17,8 @@
   </style>
 </head>
 
-<body class="bg-gradient-to-b from-purple-100 via-white to-pink-100 text-black font-sans flex flex-col items-center p-4 min-h-screen pb-24">
+<!-- 初期背景を白に -->
+<body class="bg-white text-black font-sans flex flex-col items-center p-4 min-h-screen pb-24">
 
   <!-- ロゴ -->
   <div class="flex items-center mb-6">
@@ -55,29 +56,30 @@
   </div>
 
   <script>
-    // ロゴ押したらホームへ
+    // ロゴクリックでホームへ
     document.getElementById('homeLogo').addEventListener('click', () => {
       window.location.href = 'index.html';
     });
 
-    // テーマ適用
+    // テーマを適用
     function applyTheme(theme) {
       const body = document.body;
       const navBar = document.getElementById('navBar');
 
+      // 不要な背景クラスを削除（グラデ含む）
       body.classList.remove(
-        'bg-white', 'bg-gradient-to-b',
-        'from-purple-100', 'via-white', 'to-pink-100',
+        'bg-white',
+        'bg-gradient-to-b', 'from-purple-100', 'via-white', 'to-pink-100',
         'from-pink-200', 'to-purple-300'
       );
       navBar.classList.remove(
-        'bg-white', 'bg-gradient-to-b',
-        'from-purple-100', 'via-white', 'to-pink-100',
-        'from-pink-200', 'to-purple-300'
+        'bg-white',
+        'bg-gradient-to-b', 'from-pink-200', 'to-purple-300'
       );
 
+      // テーマごとの適用
       if (theme === 'default') {
-        body.classList.add('bg-gradient-to-b', 'from-purple-100', 'via-white', 'to-pink-100');
+        body.classList.add('bg-white'); // ← 白背景
         navBar.classList.add('bg-white');
       } else if (theme === 'pinkpurple') {
         body.classList.add('bg-gradient-to-b', 'from-pink-200', 'to-purple-300');
@@ -87,7 +89,7 @@
       localStorage.setItem('selectedTheme', theme);
     }
 
-    // ページロード時
+    // 初期化
     document.addEventListener('DOMContentLoaded', () => {
       const savedTheme = localStorage.getItem('selectedTheme') || 'default';
       applyTheme(savedTheme);
@@ -100,7 +102,6 @@
         applyTheme('pinkpurple');
       });
 
-      // リセットボタン押したとき
       document.getElementById('resetDataBtn').addEventListener('click', () => {
         if (confirm('本当に全データをリセットしますか？')) {
           localStorage.clear();

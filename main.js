@@ -1,14 +1,16 @@
-// ✅ 今日の日付を取得
+// ✅ 今日の日付を「YYYY/MM/DD」形式で取得する
 function getTodayDate() {
   return new Date().toLocaleDateString('ja-JP');
 }
 
-// ✅ 今日の進捗%を取得・保存
+// ✅ 今日の「忘れられた％（気分の回復）」を取得（localStorageから）
 function getTodayMoodIncrease() {
   const data = JSON.parse(localStorage.getItem('todayMoodData')) || {};
   const today = getTodayDate();
   return data[today] || 0;
 }
+
+// ✅ 今日の「忘れられた％（気分の回復）」を加算して保存
 function setTodayMoodIncrease(amount) {
   const data = JSON.parse(localStorage.getItem('todayMoodData')) || {};
   const today = getTodayDate();
@@ -16,22 +18,26 @@ function setTodayMoodIncrease(amount) {
   localStorage.setItem('todayMoodData', JSON.stringify(data));
 }
 
-// ✅ 未練ゲージ
+// ✅ 現在の未練ゲージ（0〜100％）を取得
 function getGaugePercent() {
   return parseInt(localStorage.getItem('gaugePercent') || '0');
 }
+
+// ✅ 未練ゲージを0〜100の範囲に制限して保存し、表示を更新
 function setGaugePercent(value) {
   const percent = Math.max(0, Math.min(100, value));
   localStorage.setItem('gaugePercent', percent);
-  updateGaugeDisplay();
+  updateGaugeDisplay(); // 表示を更新
 }
+
+// ✅ ゲージの見た目（横棒＋数値）を更新する
 function updateGaugeDisplay() {
   const percent = getGaugePercent();
   document.querySelector('.gauge-fill').style.width = `${percent}%`;
   document.querySelector('.gauge-text').textContent = `${percent}%`;
 }
 
-// ✅ 今日の進捗コメント更新
+// ✅ 今日の進捗コメント（例：今日は+5%忘れられました）を表示
 function updateTodayProgress() {
   const comment = document.querySelector('.progress-comment');
   const amount = getTodayMoodIncrease();
@@ -40,16 +46,18 @@ function updateTodayProgress() {
   }
 }
 
-// ✅ バナー表示
+// ✅ 節目に達したときに画面中央にバナーを一時的に表示
 function showBanner(message) {
   const banner = document.createElement('div');
   banner.className = 'milestone-banner fixed top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-purple-100 border-2 border-purple-400 text-purple-800 px-8 py-4 text-2xl font-bold rounded-xl shadow-lg z-50 animate-bounce';
   banner.textContent = message;
   document.body.appendChild(banner);
-  setTimeout(() => banner.remove(), 3000);
+  setTimeout(() => banner.remove(), 3000); // 3秒後に自動で消す
 }
 
-// ✅ 達成バナー管理
+let previousGaugePercent = 0; // 前回のゲージ％を記録しておく変数
+
+// ✅ ゲージが10％,30％,50％,80％,100％を超えたときにバナー表示
 function checkMilestones() {
   const percent = getGaugePercent();
   const messages = {
@@ -59,17 +67,28 @@ function checkMilestones() {
     80: '80%達成！もうすぐ！',
     100: '100%達成！完全に忘れたね🎉'
   };
+
   document.querySelectorAll('.milestone-banner').forEach(b => b.remove());
-  if (messages[percent]) showBanner(messages[percent]);
+
+  for (const threshold of Object.keys(messages).map(Number).sort((a, b) => a - b)) {
+    if (previousGaugePercent < threshold && percent >= threshold) {
+      showBanner(messages[threshold]);
+      break;
+    }
+  }
+
+  previousGaugePercent = percent;
 }
 
-// ✅ ゲージ増減
+// ✅ ゲージを増加し、関連データや表示も更新
 function increaseGauge(amount) {
   setGaugePercent(getGaugePercent() + amount);
   setTodayMoodIncrease(amount);
   updateTodayProgress();
   checkMilestones();
 }
+
+// ✅ ゲージを減少し、関連データや表示も更新
 function decreaseGauge(amount) {
   setGaugePercent(getGaugePercent() - amount);
   setTodayMoodIncrease(-amount);
@@ -77,7 +96,7 @@ function decreaseGauge(amount) {
   checkMilestones();
 }
 
-// ✅ タスク保存
+// ✅ タスク一覧と完了タスクをlocalStorageに保存
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 let completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || [];
 
@@ -86,7 +105,7 @@ function saveTasks() {
   localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
 }
 
-// ✅ タスク表示
+// ✅ タスクを画面に表示（スター付きや締切順に並び替え）
 function renderTasks() {
   const taskList = document.getElementById('taskList');
   taskList.innerHTML = '';
@@ -97,6 +116,7 @@ function renderTasks() {
       return new Date(a.dueDate) - new Date(b.dueDate);
     })
     .forEach((task, index) => {
+      // タスク要素の構築（見た目と機能）
       const now = new Date();
       const deadline = new Date(task.dueDate);
       const overdue = deadline < now;
@@ -137,13 +157,14 @@ function renderTasks() {
       const rightDiv = document.createElement('div');
       rightDiv.className = 'flex items-center space-x-2';
 
+      // ⭐ スター機能（最大3個まで）
       const star = document.createElement('span');
       star.className = 'text-2xl cursor-pointer';
       star.textContent = task.star ? '⭐' : '☆';
       star.addEventListener('click', () => {
         const starCount = tasks.filter(t => t.star).length;
         if (!task.star && starCount >= 3) {
-          showBanner('スターは最大3個までです！');
+          showBanner('スター付きタスクは最大3個までです！');
           return;
         }
         task.star = !task.star;
@@ -151,18 +172,20 @@ function renderTasks() {
         renderTasks();
       });
 
+      // ✏️ 編集ボタン
       const edit = document.createElement('span');
       edit.className = 'text-2xl cursor-pointer';
       edit.textContent = '✏️';
       edit.addEventListener('click', () => editTask(index));
 
+      // 🗑️ 削除ボタン
       const trash = document.createElement('span');
       trash.className = 'text-2xl cursor-pointer';
       trash.textContent = '🗑️';
       trash.addEventListener('click', () => {
         if (confirm('本当にこのタスクを削除しますか？')) {
           tasks.splice(index, 1);
-          decreaseGauge(2);
+          decreaseGauge(2); // タスク削除でゲージ減少
           saveTasks();
           renderTasks();
         }
@@ -175,6 +198,7 @@ function renderTasks() {
       topRow.appendChild(leftDiv);
       topRow.appendChild(rightDiv);
 
+      // ⏳ 締切までの残り時間を表示
       const countdown = document.createElement('div');
       countdown.className = `text-xs ${overdue ? 'text-red-400' : 'text-gray-500'} mt-1`;
       updateCountdown(task, countdown);
@@ -187,7 +211,7 @@ function renderTasks() {
     });
 }
 
-// ✅ カウントダウン更新
+// ✅ 締切までのカウントダウン表示
 function updateCountdown(task, element) {
   const now = new Date();
   const deadline = new Date(task.dueDate);
@@ -206,7 +230,7 @@ function updateCountdown(task, element) {
   element.textContent = `締切まで ${days}日 ${hours}時間 ${minutes}分 ${seconds}秒`;
 }
 
-// ✅ タスク編集
+// ✅ タスク内容や締切の編集
 function editTask(index) {
   const newText = prompt('タスクを編集', tasks[index].text);
   const newDate = prompt('新しい締切日を設定 (例: 2025-05-01)', tasks[index].dueDate);
@@ -219,7 +243,7 @@ function editTask(index) {
   }
 }
 
-// ✅ 完了タスク管理
+// ✅ 完了済みタスクを表示（チェック付き・削除可能）
 function renderCompletedTasks() {
   const completedList = document.getElementById('completedTasks');
   completedList.innerHTML = '';
@@ -236,7 +260,7 @@ function renderCompletedTasks() {
     checkbox.checked = true;
     checkbox.className = 'w-6 h-6';
     checkbox.addEventListener('change', () => {
-      if (!checkbox.checked) moveBackToTasks(index);
+      if (!checkbox.checked) moveBackToTasks(index); // 元に戻す
     });
 
     const span = document.createElement('span');
@@ -259,12 +283,11 @@ function renderCompletedTasks() {
 
     taskDiv.appendChild(leftDiv);
     taskDiv.appendChild(trash);
-
     completedList.appendChild(taskDiv);
   });
 }
 
-// ✅ タスク追加
+// ✅ タスク追加ボタンの動作：入力欄を生成してリストに追加
 document.getElementById('addTaskBtn').addEventListener('click', () => {
   const taskList = document.getElementById('taskList');
 
@@ -301,7 +324,7 @@ document.getElementById('addTaskBtn').addEventListener('click', () => {
   input.focus();
 });
 
-// ✅ タスク完了・復活
+// ✅ タスクを完了にする（条件に応じてゲージ加算）
 function completeTask(index) {
   const task = tasks.splice(index, 1)[0];
   completedTasks.push(task);
@@ -311,17 +334,19 @@ function completeTask(index) {
   const overdue = deadline < now;
 
   if (overdue) {
-    increaseGauge(1);
+    increaseGauge(1); // 遅刻タスク
   } else if (task.star) {
-    increaseGauge(3);
+    increaseGauge(3); // スター付き
   } else {
-    increaseGauge(2);
+    increaseGauge(2); // 通常
   }
 
   saveTasks();
   renderTasks();
   renderCompletedTasks();
 }
+
+// ✅ タスクを完了済みから未完了に戻す（ゲージを減らす）
 function moveBackToTasks(index) {
   const task = completedTasks.splice(index, 1)[0];
   tasks.push(task);
@@ -331,7 +356,7 @@ function moveBackToTasks(index) {
   decreaseGauge(5);
 }
 
-// ✅ 完了タスク全削除
+// ✅ 完了済みタスクを全削除（ゲージも減らす）
 document.getElementById('clearCompletedBtn').addEventListener('click', () => {
   if (confirm('完了済みタスクをすべて空にしますか？')) {
     completedTasks.forEach(() => decreaseGauge(5));
@@ -341,7 +366,7 @@ document.getElementById('clearCompletedBtn').addEventListener('click', () => {
   }
 });
 
-// ✅ 初期化
+// ✅ 初期表示時の処理（保存データの読み込み・表示）
 document.addEventListener('DOMContentLoaded', () => {
   renderTasks();
   renderCompletedTasks();
