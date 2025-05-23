@@ -1,16 +1,16 @@
-// ✅ 今日の日付を取得
+// 日付フォーマットするやつ
 function getTodayDate() {
   return new Date().toLocaleDateString('ja-JP');
 }
 
-// ✅ 今日の進捗%を取得
+// 今日の気分変化を見るやつ
 function getTodayMoodIncrease() {
   const data = JSON.parse(localStorage.getItem('todayMoodData')) || {};
   const today = getTodayDate();
   return data[today] || 0;
 }
 
-// ✅ 今日の進捗%を保存
+// 今日の気分を記録するやつ
 function setTodayMoodIncrease(amount) {
   const data = JSON.parse(localStorage.getItem('todayMoodData')) || {};
   const today = getTodayDate();
@@ -18,19 +18,19 @@ function setTodayMoodIncrease(amount) {
   localStorage.setItem('todayMoodData', JSON.stringify(data));
 }
 
-// ✅ 未練ゲージを取得
+// 未練ゲージの現在値を取得
 function getGaugePercent() {
   return parseInt(localStorage.getItem('gaugePercent') || '0');
 }
 
-// ✅ 未練ゲージを保存
+// 未練ゲージを更新
 function setGaugePercent(value) {
   const percent = Math.max(0, Math.min(100, value));
   localStorage.setItem('gaugePercent', percent);
   updateGaugeDisplay();
 }
 
-// ✅ ゲージ表示更新
+// 画面のゲージを更新
 function updateGaugeDisplay() {
   const percent = getGaugePercent();
   const gaugeFill = document.querySelector('.gauge-fill');
@@ -39,7 +39,7 @@ function updateGaugeDisplay() {
   if (gaugeText) gaugeText.textContent = `${percent}%`;
 }
 
-// ✅ 今日の進捗コメント更新
+// 今日の進捗メッセージを更新
 function updateTodayProgress() {
   const comment = document.querySelector('.progress-comment') || document.getElementById('progress-comment');
   const amount = getTodayMoodIncrease();
@@ -63,12 +63,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let diaries = JSON.parse(localStorage.getItem('diaries') || "[]");
 
-  // 既存データ表示
+  // 保存してある日記を全部表示
   diaries.forEach(entry => {
     createDiaryEntry(entry);
   });
 
-  // 気分選択
+  // 気分ボタンを押したときの処理
   moodButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       moodButtons.forEach(b => b.classList.remove('scale-125'));
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // 日記保存
+  // 保存ボタン押したとき
   saveBtn.addEventListener('click', () => {
     const text = input.value.trim();
     if (!selectedMood) {
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
     moodIncrease = 0;
   });
 
-  // すべての日記を削除
+  // 全部消すボタン押したとき
   clearBtn.addEventListener('click', () => {
     if (confirm('すべての日記を削除しますか？')) {
       diaries.forEach(d => {
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 日記を1件作成する関数
+  // 日記カードを作って表示する関数
   function createDiaryEntry(entry) {
     const div = document.createElement('div');
     div.className = "border border-black rounded p-4 bg-white shadow flex justify-between items-center";
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.setItem('diaries', JSON.stringify(diaries));
         }
 
-        // ✅ フェードアウトしてから削除
+        // ふわっと消える
         div.classList.add('fade-out');
         setTimeout(() => {
           div.remove();
